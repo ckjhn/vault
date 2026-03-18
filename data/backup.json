@@ -1,21 +1,22 @@
 {
-  "transactions": [
-    {
-      "id": "mmw9tsa473hd8s",
-      "type": "income",
-      "date": "2026-03-01",
-      "description": "Salario",
-      "amount": 1600,
-      "currency": "BRL",
-      "category": "Salário",
-      "notes": ""
-    }
-  ],
+  "transactions": [],
   "investments": [],
   "currencies": [],
   "exchanges": [],
   "goals": [],
-  "travels": [],
+  "travels": [
+    {
+      "id": "mmwamzfuqgq5zq",
+      "destination": "Canada/United States/Europe",
+      "startDate": "",
+      "endDate": "",
+      "budget": 100000,
+      "spent": 0,
+      "currency": "BRL",
+      "status": "ongoing",
+      "notes": ""
+    }
+  ],
   "settings": {
     "baseCurrency": "BRL",
     "github": {
