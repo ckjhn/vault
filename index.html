@@ -631,6 +631,121 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .inline-flex { display: inline-flex; align-items: center; gap: 6px; }
 .w-full { width: 100%; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
+
+/* DASHBOARD TOOLBAR */
+.dash-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.dash-toolbar .toolbar-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.dash-toolbar .toolbar-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-right: 4px;
+}
+.alloc-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.alloc-chip:hover { border-color: var(--text-muted); color: var(--text-primary); }
+.alloc-chip.active {
+  background: rgba(0,212,170,0.12);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+.alloc-chip.active[data-color] { }
+
+/* REALTIME PULSE */
+.pulse-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  display: inline-block;
+  margin-right: 6px;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+/* FORECAST PAGE */
+.sim-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+.sim-slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.sim-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-input);
+  outline: none;
+}
+.sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  cursor: pointer;
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 0 6px rgba(0,212,170,0.4);
+}
+.sim-result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-top: 12px;
+}
+.sim-result .big-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* SUBS DEDUCTION IN DASHBOARD */
+.subs-deduction-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(239,68,68,0.06);
+  border: 1px solid rgba(239,68,68,0.15);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 12px;
+}
+.subs-deduction-bar .mono { color: var(--accent-red); font-weight: 600; }
+
 </style>
 </head>
 <body>
@@ -693,6 +808,17 @@ tr:hover td { background: rgba(255,255,255,0.02); }
         </div>
       </div>
       <div class="nav-section">
+        <div class="nav-section-label">Análise</div>
+        <div class="nav-item" data-page="forecast">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 20h20"/><path d="M5 20V10"/><path d="M9 20V4"/><path d="M13 20v-8"/><path d="M17 20V8"/><path d="M21 20v-4"/></svg>
+          Previsão
+        </div>
+        <div class="nav-item" onclick="window.open('vault-ai.html','_blank')" style="cursor:pointer;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a4 4 0 014 4c0 1.95-1.4 3.58-3.25 3.93"/><path d="M8.56 13.44A7 7 0 0019 16"/><path d="M12 18h.01"/><circle cx="12" cy="12" r="10"/></svg>
+          IA Avançada ↗
+        </div>
+      </div>
+      <div class="nav-section">
         <div class="nav-section-label">Sistema</div>
         <div class="nav-item" data-page="settings">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -718,16 +844,52 @@ tr:hover td { background: rgba(255,255,255,0.02); }
           <h2>Dashboard</h2>
           <div class="page-header-sub" id="dashDate"></div>
         </div>
-        <div class="header-actions">
-          <select class="form-select" id="dashPeriod" style="width:160px" onchange="renderDashboard()">
-            <option value="month">Este Mês</option>
-            <option value="year">Este Ano</option>
-            <option value="all">Tudo</option>
-          </select>
+      </div>
+
+      <!-- DASHBOARD TOOLBAR -->
+      <div class="card mb-24" style="padding:16px 20px;">
+        <div class="dash-toolbar">
+          <div class="toolbar-group">
+            <span class="toolbar-label">Período</span>
+            <select class="form-select" id="dashPeriod" style="width:170px" onchange="onDashPeriodChange()">
+              <option value="realtime">⚡ Real-Time</option>
+              <option value="month" selected>📅 Mês Atual</option>
+              <option value="prev-month">◀ Mês Anterior</option>
+              <option value="custom-month">📆 Escolher Mês</option>
+              <option value="year">📊 Este Ano</option>
+              <option value="prev-year">◀ Ano Anterior</option>
+              <option value="custom-year">📆 Escolher Ano</option>
+              <option value="all">∞ Tudo</option>
+            </select>
+            <input type="month" class="form-input" id="dashCustomMonth" style="width:160px;display:none;" onchange="renderDashboard()">
+            <select class="form-select" id="dashCustomYear" style="width:120px;display:none;" onchange="renderDashboard()"></select>
+          </div>
+          <div style="width:1px;height:28px;background:var(--border);margin:0 8px;"></div>
+          <div class="toolbar-group" id="allocChipsContainer">
+            <span class="toolbar-label">Alocação</span>
+            <!-- chips populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- REALTIME INDICATOR -->
+      <div id="realtimeIndicator" style="display:none;margin-bottom:16px;">
+        <div class="card" style="padding:14px 20px;border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.04);">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="pulse-dot"></span>
+              <span style="font-size:13px;font-weight:600;color:var(--accent-green);">REAL-TIME</span>
+              <span style="font-size:12px;color:var(--text-secondary);" id="rtAllocLabel">Progresso acumulado ao longo do tempo</span>
+            </div>
+            <div class="mono" style="font-size:18px;font-weight:600;" id="rtRunningBalance">—</div>
+          </div>
         </div>
       </div>
 
       <div class="grid-4 mb-24" id="dashSummary"></div>
+
+      <!-- SUBSCRIPTION DEDUCTION BAR -->
+      <div id="dashSubsDeduction" style="display:none;" class="mb-24"></div>
 
       <div class="grid-3 mb-24" id="dashInsights"></div>
 
@@ -996,6 +1158,80 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       </div>
     </div>
 
+
+    <!-- ===== FORECAST & SIMULATION PAGE ===== -->
+    <div class="page" id="page-forecast">
+      <div class="page-header">
+        <div>
+          <h2>Previsão & Simulação</h2>
+          <div class="page-header-sub">Projeções financeiras e cenários "what if"</div>
+        </div>
+      </div>
+
+      <!-- Forecast Summary -->
+      <div class="grid-4 mb-24" id="forecastSummary"></div>
+
+      <div class="grid-2 mb-24">
+        <!-- Projection Chart -->
+        <div class="card">
+          <div class="card-title">Projeção de Saldo — 12 Meses</div>
+          <div style="margin-bottom:12px;">
+            <select class="form-select" id="fcAllocFilter" style="width:200px;" onchange="renderForecast()">
+              <option value="all">Todas as Alocações</option>
+            </select>
+          </div>
+          <div class="chart-container"><canvas id="forecastChart"></canvas></div>
+        </div>
+
+        <!-- Simulation Panel -->
+        <div class="card">
+          <div class="card-title">Simulação "What If"</div>
+          <div style="margin-bottom:20px;">
+            <div class="sim-slider-label">
+              <span>Salário Mensal</span>
+              <span class="mono text-cyan" id="simSalaryVal">R$ 0</span>
+            </div>
+            <input type="range" class="sim-slider" id="simSalary" min="0" max="10000" step="50" onchange="runSimulation()" oninput="document.getElementById('simSalaryVal').textContent=fmtMoney(this.value,'BRL')">
+          </div>
+          <div style="margin-bottom:20px;">
+            <div class="sim-slider-label">
+              <span>Gastos Mensais Extras</span>
+              <span class="mono text-red" id="simExpVal">R$ 0</span>
+            </div>
+            <input type="range" class="sim-slider" id="simExpense" min="0" max="5000" step="50" value="0" onchange="runSimulation()" oninput="document.getElementById('simExpVal').textContent=fmtMoney(this.value,'BRL')">
+          </div>
+          <div style="margin-bottom:20px;">
+            <div class="sim-slider-label">
+              <span>Nova Assinatura</span>
+              <span class="mono text-orange" id="simSubVal">R$ 0</span>
+            </div>
+            <input type="range" class="sim-slider" id="simNewSub" min="0" max="500" step="5" value="0" onchange="runSimulation()" oninput="document.getElementById('simSubVal').textContent=fmtMoney(this.value,'BRL')">
+          </div>
+          <div style="margin-bottom:20px;">
+            <div class="sim-slider-label">
+              <span>Meses para simular</span>
+              <span class="mono" id="simMonthsVal">12</span>
+            </div>
+            <input type="range" class="sim-slider" id="simMonths" min="1" max="60" step="1" value="12" onchange="runSimulation()" oninput="document.getElementById('simMonthsVal').textContent=this.value">
+          </div>
+
+          <div id="simResults"></div>
+        </div>
+      </div>
+
+      <!-- Goal Timelines -->
+      <div class="card mb-24">
+        <div class="card-title">Previsão de Atingimento de Metas</div>
+        <div id="forecastGoalTimelines"></div>
+      </div>
+
+      <!-- Allocation Growth Projection -->
+      <div class="card">
+        <div class="card-title">Crescimento por Alocação — Próximos 12 Meses</div>
+        <div class="chart-container"><canvas id="allocGrowthChart"></canvas></div>
+      </div>
+    </div>
+
     <!-- ===== SETTINGS PAGE ===== -->
     <div class="page" id="page-settings">
       <div class="page-header">
@@ -1232,6 +1468,12 @@ tr:hover td { background: rgba(255,255,255,0.02); }
           <label class="form-label">Taxa Anual (%)</label>
           <input type="number" step="0.01" class="form-input" id="invAnnualFee" placeholder="0.00" value="0">
         </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fonte (de qual alocação sai o investimento?)</label>
+        <select class="form-select" id="invFundSource">
+          <option value="">— Nenhuma (investimento geral) —</option>
+        </select>
       </div>
       <div class="form-group">
         <label class="form-label">Vencimento (opcional)</label>
@@ -1791,32 +2033,162 @@ function getOrCreateChart(id, config) {
 // ============================
 // DASHBOARD
 // ============================
+// DASHBOARD STATE
+let dashAllocFilter = 'all';
+
+function buildAllocChips() {
+  const container = document.getElementById('allocChipsContainer');
+  if (!container) return;
+  let html = '<span class="toolbar-label">Alocação</span>';
+  html += '<button class="alloc-chip' + (dashAllocFilter==='all'?' active':'') + '" onclick="setDashAlloc(\'all\')">Todas</button>';
+  (DB.allocations||[]).forEach(a => {
+    const active = dashAllocFilter === a.id;
+    html += '<button class="alloc-chip' + (active?' active':'') + '" data-color="' + a.color + '" onclick="setDashAlloc(\'' + a.id + '\')" style="' + (active?'background:'+a.color+'22;border-color:'+a.color+';color:'+a.color+';':'') + '">' + (a.icon?a.icon+' ':'') + a.name + '</button>';
+  });
+  container.innerHTML = html;
+}
+
+function setDashAlloc(id) {
+  dashAllocFilter = id;
+  buildAllocChips();
+  renderDashboard();
+}
+
+function onDashPeriodChange() {
+  const v = document.getElementById('dashPeriod').value;
+  document.getElementById('dashCustomMonth').style.display = v==='custom-month'?'block':'none';
+  document.getElementById('dashCustomYear').style.display = v==='custom-year'?'block':'none';
+  document.getElementById('realtimeIndicator').style.display = v==='realtime'?'block':'none';
+  // Populate year picker
+  if (v==='custom-year') {
+    const sel = document.getElementById('dashCustomYear');
+    if (sel.options.length<=1) {
+      sel.innerHTML = '';
+      const years = [...new Set(DB.transactions.map(t=>new Date(t.date).getFullYear()))].sort((a,b)=>b-a);
+      if (years.length===0) years.push(new Date().getFullYear());
+      years.forEach(y => { sel.innerHTML += '<option value="'+y+'">'+y+'</option>'; });
+    }
+  }
+  renderDashboard();
+}
+
+function getDashPeriodTxs() {
+  const period = document.getElementById('dashPeriod').value;
+  const now = new Date();
+  let txs = DB.transactions;
+
+  if (period === 'month') {
+    const m = now.getMonth(), y = now.getFullYear();
+    txs = txs.filter(t => { const d = new Date(t.date); return d.getMonth()===m && d.getFullYear()===y; });
+  } else if (period === 'prev-month') {
+    const prev = new Date(now.getFullYear(), now.getMonth()-1, 1);
+    const m = prev.getMonth(), y = prev.getFullYear();
+    txs = txs.filter(t => { const d = new Date(t.date); return d.getMonth()===m && d.getFullYear()===y; });
+  } else if (period === 'custom-month') {
+    const val = document.getElementById('dashCustomMonth').value;
+    if (val) txs = txs.filter(t => t.date.startsWith(val));
+    else txs = [];
+  } else if (period === 'year') {
+    txs = txs.filter(t => new Date(t.date).getFullYear()===now.getFullYear());
+  } else if (period === 'prev-year') {
+    txs = txs.filter(t => new Date(t.date).getFullYear()===now.getFullYear()-1);
+  } else if (period === 'custom-year') {
+    const y = parseInt(document.getElementById('dashCustomYear').value);
+    if (y) txs = txs.filter(t => new Date(t.date).getFullYear()===y);
+    else txs = [];
+  } else if (period === 'realtime') {
+    // all time for realtime
+  }
+  return txs;
+}
+
+function getSubsCostForDashPeriod() {
+  const period = document.getElementById('dashPeriod').value;
+  const monthlyCost = getMonthlySubsCost();
+  if (period==='month' || period==='prev-month' || period==='custom-month') return monthlyCost;
+  if (period==='year' || period==='prev-year' || period==='custom-year') return monthlyCost * 12;
+  if (period==='realtime' || period==='all') {
+    // count months of data
+    const dates = DB.transactions.map(t=>t.date).sort();
+    if (dates.length<2) return monthlyCost;
+    const first = new Date(dates[0]), last = new Date(dates[dates.length-1]);
+    const months = Math.max(1, (last.getFullYear()-first.getFullYear())*12 + last.getMonth()-first.getMonth()+1);
+    return monthlyCost * months;
+  }
+  return monthlyCost;
+}
+
 function renderDashboard() {
+  buildAllocChips();
   const period = document.getElementById('dashPeriod').value;
   const now = new Date();
   document.getElementById('dashDate').textContent = now.toLocaleDateString('pt-BR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
 
-  let txs = DB.transactions;
-  if (period === 'month') {
-    const m = now.getMonth(), y = now.getFullYear();
-    txs = txs.filter(t => { const d = new Date(t.date); return d.getMonth()===m && d.getFullYear()===y; });
-  } else if (period === 'year') {
-    const y = now.getFullYear();
-    txs = txs.filter(t => new Date(t.date).getFullYear()===y);
+  let txs = getDashPeriodTxs();
+
+  // Filter by allocation if not "all"
+  const allocId = dashAllocFilter;
+  if (allocId !== 'all') {
+    txs = txs.filter(t => t.fundSource === allocId);
   }
 
   const income = txs.filter(t=>t.type==='income').reduce((s,t)=>s+parseFloat(t.amount),0);
   const expense = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+parseFloat(t.amount),0);
   const balance = income - expense;
-  const invTotal = DB.investments.reduce((s,i)=>s+parseFloat(i.currentValue||0),0);
+
+  // Investments filtered by allocation
+  let invArr = DB.investments;
+  if (allocId !== 'all') {
+    invArr = invArr.filter(i => i.fundSource === allocId);
+  }
+  const invTotal = invArr.reduce((s,i)=>s+parseFloat(i.currentValue||0),0);
 
   const bc = DB.settings.baseCurrency;
+
+  // Subscription deduction bar
+  const subsDeductionEl = document.getElementById('dashSubsDeduction');
+  if (allocId !== 'all') {
+    // When viewing specific allocation, show how much subs eat into it
+    const alloc = (DB.allocations||[]).find(a=>a.id===allocId);
+    if (alloc) {
+      const salary = DB.settings.salary || 0;
+      const subsCost = getMonthlySubsCost();
+      const available = Math.max(0, salary - subsCost);
+      const allocBudget = available * (alloc.pct / 100);
+      const isMonthly = (period==='month'||period==='prev-month'||period==='custom-month'||period==='realtime');
+      subsDeductionEl.style.display = 'block';
+      subsDeductionEl.innerHTML = '<div class="subs-deduction-bar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Orçamento mensal desta alocação: <span class="mono">' + fmtMoney(allocBudget, bc) + '</span> — após desconto de assinaturas (<span class="mono">' + fmtMoney(subsCost, bc) + '</span>/mês do salário bruto)</div>';
+    } else {
+      subsDeductionEl.style.display = 'none';
+    }
+  } else {
+    // Show total subs cost for period
+    const periodSubsCost = getSubsCostForDashPeriod();
+    if (periodSubsCost > 0 && txs.length > 0) {
+      subsDeductionEl.style.display = 'block';
+      subsDeductionEl.innerHTML = '<div class="subs-deduction-bar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Custo de assinaturas no período: <span class="mono">' + fmtMoney(periodSubsCost, bc) + '</span> (incluído nas despesas)</div>';
+    } else {
+      subsDeductionEl.style.display = 'none';
+    }
+  }
+
   document.getElementById('dashSummary').innerHTML = `
     <div class="card"><div class="card-title">Receitas</div><div class="card-value text-green">${fmtMoney(income,bc)}</div></div>
     <div class="card"><div class="card-title">Despesas</div><div class="card-value text-red">${fmtMoney(expense,bc)}</div></div>
     <div class="card"><div class="card-title">Balanço</div><div class="card-value" style="color:${balance>=0?'var(--accent-cyan)':'var(--accent-red)'}">${fmtMoney(balance,bc)}</div></div>
     <div class="card"><div class="card-title">Investido</div><div class="card-value text-purple">${fmtMoney(invTotal,bc)}</div></div>
   `;
+
+  // Realtime running balance
+  if (period === 'realtime') {
+    document.getElementById('realtimeIndicator').style.display = 'block';
+    const allocLabel = allocId==='all' ? 'Visão geral' : ((DB.allocations||[]).find(a=>a.id===allocId)?.name || '');
+    document.getElementById('rtAllocLabel').textContent = 'Progresso acumulado — ' + allocLabel;
+    document.getElementById('rtRunningBalance').textContent = fmtMoney(balance + invTotal, bc);
+    document.getElementById('rtRunningBalance').style.color = (balance+invTotal)>=0 ? 'var(--accent-cyan)' : 'var(--accent-red)';
+  } else {
+    document.getElementById('realtimeIndicator').style.display = 'none';
+  }
 
   // Insight cards: Net Worth, Savings Rate, Health Score
   const allIncome = DB.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+parseFloat(t.amount),0);
@@ -2096,6 +2468,17 @@ function openInvModal(id) {
     document.getElementById('invAnnualFee').value = '0';
     document.getElementById('invMaturity').value = '';
     document.getElementById('invType').value = 'Ações';
+    document.getElementById('invFundSource').value = '';
+  }
+  // Populate fund source dropdown
+  const invFS = document.getElementById('invFundSource');
+  invFS.innerHTML = '<option value="">— Nenhuma (investimento geral) —</option>';
+  (DB.allocations||[]).forEach(a => {
+    invFS.innerHTML += '<option value="' + a.id + '">' + (a.icon?a.icon+' ':'') + a.name + '</option>';
+  });
+  if (isEdit) {
+    const inv2 = DB.investments.find(x=>x.id===id);
+    if (inv2 && inv2.fundSource) invFS.value = inv2.fundSource;
   }
   openModal('invModalOverlay');
 }
@@ -2115,7 +2498,8 @@ function saveInv() {
     fee: parseFloat(document.getElementById('invFee').value)||0,
     annualFee: parseFloat(document.getElementById('invAnnualFee').value)||0,
     maturity: document.getElementById('invMaturity').value,
-    notes: document.getElementById('invNotes').value
+    notes: document.getElementById('invNotes').value,
+    fundSource: document.getElementById('invFundSource').value || ''
   };
   if (!obj.name || !obj.investedValue) { toast('Preencha nome e valor investido','error'); return; }
   if (id) {
@@ -3454,7 +3838,237 @@ function renderAll() {
   renderSubscriptions();
   renderBudget();
   renderAllocation();
+  renderForecast();
   updateSyncStatus();
+}
+
+
+// ============================
+// AUTO-LOAD FROM GITHUB
+// ============================
+async function autoLoadFromGitHub() {
+  if (!isGitHubConfigured()) return false;
+  try {
+    const apiUrl = `https://api.github.com/repos/${GitHubConfig.owner}/${GitHubConfig.repo}/contents/${GitHubConfig.filePath}?ref=${GitHubConfig.branch}&t=${Date.now()}`;
+    const resp = await fetch(apiUrl, {
+      headers: {
+        'Authorization': `Bearer ${GitHubConfig.token}`,
+        'Accept': 'application/vnd.github.v3+json',
+      },
+      cache: 'no-store'
+    });
+    if (!resp.ok) return false;
+    const fileInfo = await resp.json();
+    const decoded = decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, ''))));
+    const data = JSON.parse(decoded);
+    if (data.transactions || data.investments || data.goals || data.subscriptions) {
+      DB = data;
+      const empty = getEmptyDB();
+      for (const k in empty) { if (!DB[k]) DB[k] = empty[k]; }
+      if (!DB.settings.salary && DB.settings.salary !== 0) DB.settings.salary = 0;
+      saveDB();
+      toast('Dados carregados do GitHub ✓', 'success');
+      return true;
+    }
+  } catch(e) {
+    console.warn('Auto-load GitHub failed:', e);
+  }
+  return false;
+}
+
+// ============================
+// FORECAST & SIMULATION
+// ============================
+function renderForecast() {
+  const bc = DB.settings.baseCurrency;
+  const salary = DB.settings.salary || 0;
+  const subsCost = getMonthlySubsCost();
+  const available = Math.max(0, salary - subsCost);
+  const now = new Date();
+
+  // Average monthly income/expense from last 6 months
+  let mIncome = 0, mExpense = 0, monthCount = 0;
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const m = d.getMonth(), y = d.getFullYear();
+    const mi = DB.transactions.filter(t=>t.type==='income'&&(()=>{const dd=new Date(t.date);return dd.getMonth()===m&&dd.getFullYear()===y;})()).reduce((s,t)=>s+parseFloat(t.amount),0);
+    const me = DB.transactions.filter(t=>t.type==='expense'&&(()=>{const dd=new Date(t.date);return dd.getMonth()===m&&dd.getFullYear()===y;})()).reduce((s,t)=>s+parseFloat(t.amount),0);
+    if (mi > 0 || me > 0) { mIncome += mi; mExpense += me; monthCount++; }
+  }
+  const avgIncome = monthCount > 0 ? mIncome / monthCount : salary;
+  const avgExpense = monthCount > 0 ? mExpense / monthCount : subsCost;
+  const avgSavings = avgIncome - avgExpense;
+  const projectedYearly = avgSavings * 12;
+
+  // Summary
+  const fcSummary = document.getElementById('forecastSummary');
+  if (fcSummary) {
+    fcSummary.innerHTML = `
+      <div class="card"><div class="card-title">Renda Média Mensal</div><div class="card-value text-green">${fmtMoney(avgIncome,bc)}</div></div>
+      <div class="card"><div class="card-title">Gasto Médio Mensal</div><div class="card-value text-red">${fmtMoney(avgExpense,bc)}</div></div>
+      <div class="card"><div class="card-title">Poupança Média/Mês</div><div class="card-value ${avgSavings>=0?'text-cyan':'text-red'}">${fmtMoney(avgSavings,bc)}</div></div>
+      <div class="card"><div class="card-title">Projeção Anual</div><div class="card-value ${projectedYearly>=0?'text-green':'text-red'}">${fmtMoney(projectedYearly,bc)}</div></div>
+    `;
+  }
+
+  // Populate alloc filter
+  const fcAllocSel = document.getElementById('fcAllocFilter');
+  if (fcAllocSel) {
+    const curVal = fcAllocSel.value;
+    fcAllocSel.innerHTML = '<option value="all">Todas as Alocações</option>';
+    (DB.allocations||[]).forEach(a => {
+      fcAllocSel.innerHTML += '<option value="' + a.id + '">' + (a.icon?a.icon+' ':'') + a.name + '</option>';
+    });
+    fcAllocSel.value = curVal || 'all';
+  }
+
+  // 12-month projection chart
+  const fcAllocId = fcAllocSel ? fcAllocSel.value : 'all';
+  let projIncome = avgIncome;
+  let projExpense = avgExpense;
+  if (fcAllocId !== 'all') {
+    const alloc = (DB.allocations||[]).find(a=>a.id===fcAllocId);
+    if (alloc) {
+      projIncome = available * (alloc.pct / 100);
+      projExpense = DB.transactions.filter(t=>t.type==='expense'&&t.fundSource===fcAllocId).length > 0
+        ? DB.transactions.filter(t=>t.type==='expense'&&t.fundSource===fcAllocId).reduce((s,t)=>s+parseFloat(t.amount),0) / Math.max(1,monthCount)
+        : 0;
+    }
+  }
+
+  const labels = [];
+  const balanceData = [];
+  const incomeData = [];
+  const expenseData = [];
+  let runBal = 0;
+  for (let i = 1; i <= 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth()+i, 1);
+    labels.push(d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}));
+    runBal += (projIncome - projExpense);
+    balanceData.push(Math.round(runBal));
+    incomeData.push(Math.round(projIncome));
+    expenseData.push(Math.round(projExpense));
+  }
+
+  getOrCreateChart('forecastChart', {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label:'Saldo Acumulado', data:balanceData, borderColor:'#00d4aa', backgroundColor:'rgba(0,212,170,0.1)', fill:true, tension:0.3 },
+        { label:'Receita Proj.', data:incomeData, borderColor:'#22c55e', borderDash:[5,5], tension:0.3, pointRadius:2 },
+        { label:'Despesa Proj.', data:expenseData, borderColor:'#ef4444', borderDash:[5,5], tension:0.3, pointRadius:2 }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#8b8d9a',font:{family:'DM Sans'}}}}, scales:{x:{ticks:{color:'#5a5c6a'},grid:{color:'rgba(42,43,54,0.5)'}},y:{ticks:{color:'#5a5c6a'},grid:{color:'rgba(42,43,54,0.5)'}}} }
+  });
+
+  // Simulation init
+  const simSalary = document.getElementById('simSalary');
+  if (simSalary && !simSalary._init) {
+    simSalary.value = salary;
+    simSalary._init = true;
+    document.getElementById('simSalaryVal').textContent = fmtMoney(salary, bc);
+    runSimulation();
+  }
+
+  // Goal timelines
+  renderForecastGoals(avgSavings, bc);
+
+  // Allocation growth chart
+  renderAllocGrowthChart(bc);
+}
+
+function runSimulation() {
+  const bc = DB.settings.baseCurrency;
+  const simSalary = parseFloat(document.getElementById('simSalary').value)||0;
+  const simExp = parseFloat(document.getElementById('simExpense').value)||0;
+  const simSub = parseFloat(document.getElementById('simNewSub').value)||0;
+  const simMonths = parseInt(document.getElementById('simMonths').value)||12;
+
+  const currentSubs = getMonthlySubsCost();
+  const totalMonthlyCost = currentSubs + simSub + simExp;
+  const netMonthly = simSalary - totalMonthlyCost;
+  const netTotal = netMonthly * simMonths;
+
+  const resultsEl = document.getElementById('simResults');
+  if (!resultsEl) return;
+
+  resultsEl.innerHTML = `
+    <div class="sim-result">
+      <div style="flex:1;">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">Líquido Mensal Simulado</div>
+        <div class="big-num ${netMonthly>=0?'text-cyan':'text-red'}">${fmtMoney(netMonthly,bc)}</div>
+      </div>
+    </div>
+    <div class="sim-result">
+      <div style="flex:1;">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">Total em ${simMonths} meses</div>
+        <div class="big-num ${netTotal>=0?'text-green':'text-red'}">${fmtMoney(netTotal,bc)}</div>
+      </div>
+    </div>
+    <div class="sim-result">
+      <div style="flex:1;">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">Custo total de assinaturas (atual + simulada)</div>
+        <div class="big-num text-orange">${fmtMoney(currentSubs+simSub,bc)}<span style="font-size:12px;color:var(--text-muted);">/mês</span></div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);margin-top:8px;padding:8px 12px;background:var(--bg-card);border-radius:var(--radius-sm);">
+      ${netMonthly >= 0 ? '✅ Cenário sustentável — sobra ' + fmtMoney(netMonthly,bc) + '/mês' : '⚠️ Cenário insustentável — déficit de ' + fmtMoney(Math.abs(netMonthly),bc) + '/mês'}
+    </div>
+  `;
+}
+
+function renderForecastGoals(avgSavings, bc) {
+  const el = document.getElementById('forecastGoalTimelines');
+  if (!el) return;
+  const goals = DB.goals.filter(g=>g.targetValue>g.currentValue);
+  if (goals.length===0) {
+    el.innerHTML = '<div class="empty-state"><p>Nenhuma meta pendente para projetar</p></div>';
+    return;
+  }
+  let html = '';
+  goals.forEach(g => {
+    const remaining = g.targetValue - g.currentValue;
+    const monthsNeeded = avgSavings > 0 ? Math.ceil(remaining / avgSavings) : Infinity;
+    const targetDate = new Date();
+    targetDate.setMonth(targetDate.getMonth() + monthsNeeded);
+    const pct = Math.min(100,(g.currentValue/g.targetValue*100)||0);
+    const timeLabel = monthsNeeded === Infinity ? 'Sem poupança suficiente' : monthsNeeded <= 1 ? 'Próximo mês!' : monthsNeeded + ' meses (~' + targetDate.toLocaleDateString('pt-BR',{month:'short',year:'numeric'}) + ')';
+    const color = pct >= 80 ? 'var(--accent-green)' : pct >= 40 ? 'var(--accent-cyan)' : 'var(--accent-orange)';
+
+    html += '<div style="display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--border);">';
+    html += '<div style="min-width:120px;"><div style="font-size:14px;font-weight:600;">' + g.name + '</div><div style="font-size:11px;color:var(--text-muted);">' + fmtMoney(g.currentValue,g.currency) + ' / ' + fmtMoney(g.targetValue,g.currency) + '</div></div>';
+    html += '<div style="flex:1;"><div class="progress-bar" style="height:8px;"><div class="progress-fill" style="width:' + pct + '%;background:' + color + ';"></div></div></div>';
+    html += '<div style="min-width:180px;text-align:right;"><div class="mono" style="font-size:13px;color:' + (monthsNeeded===Infinity?'var(--accent-red)':'var(--accent-cyan)') + ';">' + timeLabel + '</div></div>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderAllocGrowthChart(bc) {
+  if (!DB.allocations || DB.allocations.length===0) return;
+  const salary = DB.settings.salary||0;
+  const subsCost = getMonthlySubsCost();
+  const available = Math.max(0,salary-subsCost);
+  const now = new Date();
+  const labels = [];
+  for (let i=1;i<=12;i++) {
+    const d = new Date(now.getFullYear(),now.getMonth()+i,1);
+    labels.push(d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}));
+  }
+  const datasets = DB.allocations.map(a => {
+    const monthly = available * (a.pct/100);
+    const data = [];
+    let acc = 0;
+    for (let i=0;i<12;i++) { acc+=monthly; data.push(Math.round(acc)); }
+    return { label:a.name, data:data, borderColor:a.color, backgroundColor:a.color+'22', fill:false, tension:0.3 };
+  });
+  getOrCreateChart('allocGrowthChart', {
+    type:'line',
+    data:{ labels, datasets },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#8b8d9a',font:{family:'DM Sans'}}}}, scales:{x:{ticks:{color:'#5a5c6a'},grid:{color:'rgba(42,43,54,0.5)'}},y:{ticks:{color:'#5a5c6a'},grid:{color:'rgba(42,43,54,0.5)'}}} }
+  });
 }
 
 // ============================
@@ -3463,6 +4077,15 @@ function renderAll() {
 loadDB();
 loadGitHubConfig();
 loadGHConfigUI();
+
+// Auto-load from GitHub on startup
+(async function() {
+  const loaded = await autoLoadFromGitHub();
+  if (loaded) {
+    renderAll();
+    loadGHConfigUI();
+  }
+})();
 
 // Auto-process subscription charges on load (silent)
 (function() {
