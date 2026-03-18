@@ -1,5 +1,16 @@
 {
-  "transactions": [],
+  "transactions": [
+    {
+      "id": "mmw9tsa473hd8s",
+      "type": "income",
+      "date": "2026-03-01",
+      "description": "Salario",
+      "amount": 1600,
+      "currency": "BRL",
+      "category": "Salário",
+      "notes": ""
+    }
+  ],
   "investments": [],
   "currencies": [],
   "exchanges": [],
@@ -11,7 +22,8 @@
       "repo": "ckjhn/financial-dashboard",
       "path": "data/vault.json",
       "branch": "main"
-    }
+    },
+    "salary": 1600
   },
   "subscriptions": [
     {
@@ -126,5 +138,28 @@
       "autoCreate": true
     }
   ],
-  "budgets": []
+  "budgets": [],
+  "allocations": [
+    {
+      "id": "mmw9sg5frsk4wz",
+      "name": "Travel/Future",
+      "pct": 60,
+      "color": "#00d4aa",
+      "icon": ""
+    },
+    {
+      "id": "mmw9srird6njyf",
+      "name": "Hobby",
+      "pct": 20,
+      "color": "#a855f7",
+      "icon": ""
+    },
+    {
+      "id": "mmw9syjyx0pzz7",
+      "name": "Investments",
+      "pct": 20,
+      "color": "#ef4444",
+      "icon": ""
+    }
+  ]
 }
