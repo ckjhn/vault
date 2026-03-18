@@ -9,6 +9,26 @@
       "category": "salary",
       "allocationId": "",
       "isSalary": true
+    },
+    {
+      "id": "mmwmoewq34kyk",
+      "type": "expense",
+      "date": "2026-03-18",
+      "description": "Compras",
+      "amount": 635.02,
+      "category": "shopping",
+      "allocationId": "",
+      "isSalary": false
+    },
+    {
+      "id": "mmwmszr82bsmx",
+      "type": "expense",
+      "date": "2026-03-18",
+      "description": "Sem descrição",
+      "amount": 419,
+      "category": "shopping",
+      "allocationId": "",
+      "isSalary": false
     }
   ],
   "allocations": [
