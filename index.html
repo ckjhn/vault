@@ -683,6 +683,10 @@ tr:hover td { background: rgba(255,255,255,0.02); }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M6 9h4M6 12h6M14 9h4"/></svg>
           Orçamento
         </div>
+        <div class="nav-item" data-page="allocation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 11-6.219-8.56"/><path d="M21 3v6h-6"/><circle cx="12" cy="12" r="3"/></svg>
+          Alocação
+        </div>
         <div class="nav-item" data-page="travels">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
           Viagens
@@ -933,6 +937,65 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       </div>
     </div>
 
+    <!-- ===== ALLOCATION PAGE ===== -->
+    <div class="page" id="page-allocation">
+      <div class="page-header">
+        <div>
+          <h2>Alocação Salarial</h2>
+          <div class="page-header-sub">Distribua seu salário líquido entre categorias de destino</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openAllocModal()">＋ Nova Categoria</button>
+        </div>
+      </div>
+
+      <!-- Salary config -->
+      <div class="card mb-24">
+        <div style="display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap;">
+          <div class="form-group" style="margin-bottom:0;min-width:220px;">
+            <label class="form-label">Salário Bruto Mensal</label>
+            <input type="number" step="0.01" class="form-input mono" id="allocSalary" placeholder="0.00" onchange="updateSalaryFromInput()" style="font-size:16px;">
+          </div>
+          <div style="flex:1;min-width:300px;">
+            <div style="display:flex;gap:24px;flex-wrap:wrap;">
+              <div>
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px;">Assinaturas Ativas</div>
+                <div class="mono text-red" style="font-size:20px;font-weight:600;" id="allocSubsTotal">R$ 0,00</div>
+              </div>
+              <div>
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px;">Disponível p/ Alocar</div>
+                <div class="mono text-cyan" style="font-size:20px;font-weight:600;" id="allocAvailable">R$ 0,00</div>
+              </div>
+              <div>
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px;">Total Alocado</div>
+                <div class="mono" style="font-size:20px;font-weight:600;" id="allocTotalPct">0%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Allocation bars -->
+      <div class="grid-2 mb-24">
+        <div class="card">
+          <div class="card-title">Distribuição</div>
+          <div id="allocBars"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Visualização</div>
+          <div class="chart-container" style="height:260px;display:flex;align-items:center;justify-content:center;">
+            <canvas id="allocChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Allocation table -->
+      <div class="card">
+        <div class="card-title">Categorias de Alocação</div>
+        <div class="table-container" id="allocTable"></div>
+      </div>
+    </div>
+
     <!-- ===== SETTINGS PAGE ===== -->
     <div class="page" id="page-settings">
       <div class="page-header">
@@ -1032,7 +1095,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Tipo</label>
-          <select class="form-select" id="txType">
+          <select class="form-select" id="txType" onchange="toggleFundSourceVisibility()">
             <option value="income">Receita</option>
             <option value="expense">Despesa</option>
           </select>
@@ -1077,6 +1140,12 @@ tr:hover td { background: rgba(255,255,255,0.02); }
           <option value="Compras">Compras</option>
           <option value="Viagem">Viagem</option>
           <option value="Outros">Outros</option>
+        </select>
+      </div>
+      <div class="form-group" id="txFundSourceGroup" style="display:none;">
+        <label class="form-label">Fonte (de qual alocação sai o dinheiro?)</label>
+        <select class="form-select" id="txFundSource">
+          <option value="">— Nenhuma (gasto geral) —</option>
         </select>
       </div>
       <div class="form-group">
@@ -1549,6 +1618,51 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   </div>
 </div>
 
+<!-- ===== ALLOCATION MODAL ===== -->
+<div class="modal-overlay" id="allocModalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="allocModalTitle">Nova Categoria de Alocação</h3>
+      <button class="modal-close" onclick="closeModal('allocModalOverlay')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="allocEditId">
+      <div class="form-group">
+        <label class="form-label">Nome da Categoria</label>
+        <input class="form-input" id="allocName" placeholder="Ex: Travel/Future/Exterior, Investimentos, Hobby">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Porcentagem (%)</label>
+          <input type="number" step="0.1" min="0" max="100" class="form-input" id="allocPct" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cor</label>
+          <select class="form-select" id="allocColor">
+            <option value="#00d4aa">Cyan</option>
+            <option value="#3d8bfd">Azul</option>
+            <option value="#a855f7">Roxo</option>
+            <option value="#f59e0b">Laranja</option>
+            <option value="#22c55e">Verde</option>
+            <option value="#ec4899">Rosa</option>
+            <option value="#ef4444">Vermelho</option>
+            <option value="#06b6d4">Teal</option>
+            <option value="#f97316">Tangerina</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ícone (emoji, opcional)</label>
+        <input class="form-input" id="allocIcon" placeholder="Ex: ✈️ 📈 🎮" style="max-width:120px;">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('allocModalOverlay')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveAlloc()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ============================
 // DATABASE & PERSISTENCE
@@ -1565,8 +1679,10 @@ function getEmptyDB() {
     travels: [],
     subscriptions: [],
     budgets: [],
+    allocations: [],
     settings: {
-      baseCurrency: 'BRL'
+      baseCurrency: 'BRL',
+      salary: 0
     }
   };
 }
@@ -1580,6 +1696,7 @@ function loadDB() {
     // ensure all fields
     const e = getEmptyDB();
     for (const k in e) { if (!DB[k]) DB[k] = e[k]; }
+    if (!DB.settings.salary && DB.settings.salary !== 0) DB.settings.salary = 0;
   } catch(e) { DB = getEmptyDB(); }
 }
 
@@ -1828,6 +1945,7 @@ function openTxModal(id) {
   const isEdit = !!id;
   document.getElementById('txModalTitle').textContent = isEdit ? 'Editar Transação' : 'Nova Transação';
   document.getElementById('txEditId').value = id || '';
+  populateFundSourceDropdown();
   if (isEdit) {
     const t = DB.transactions.find(x=>x.id===id);
     if (!t) return;
@@ -1838,6 +1956,7 @@ function openTxModal(id) {
     document.getElementById('txCurrency').value = t.currency;
     document.getElementById('txCategory').value = t.category;
     document.getElementById('txNotes').value = t.notes || '';
+    document.getElementById('txFundSource').value = t.fundSource || '';
   } else {
     document.getElementById('txType').value = 'expense';
     document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
@@ -1846,8 +1965,24 @@ function openTxModal(id) {
     document.getElementById('txCurrency').value = DB.settings.baseCurrency;
     document.getElementById('txCategory').value = 'Outros';
     document.getElementById('txNotes').value = '';
+    document.getElementById('txFundSource').value = '';
   }
+  toggleFundSourceVisibility();
   openModal('txModalOverlay');
+}
+
+function populateFundSourceDropdown() {
+  const sel = document.getElementById('txFundSource');
+  sel.innerHTML = '<option value="">— Nenhuma (gasto geral) —</option>';
+  (DB.allocations||[]).forEach(a => {
+    sel.innerHTML += `<option value="${a.id}">${a.icon?a.icon+' ':''}${a.name}</option>`;
+  });
+}
+
+function toggleFundSourceVisibility() {
+  const type = document.getElementById('txType').value;
+  const group = document.getElementById('txFundSourceGroup');
+  group.style.display = (type === 'expense' && (DB.allocations||[]).length > 0) ? 'block' : 'none';
 }
 
 function saveTx() {
@@ -1862,6 +1997,11 @@ function saveTx() {
     category: document.getElementById('txCategory').value,
     notes: document.getElementById('txNotes').value
   };
+  // Save fund source for expenses
+  if (obj.type === 'expense') {
+    const fs = document.getElementById('txFundSource').value;
+    if (fs) obj.fundSource = fs;
+  }
   if (!obj.date || !obj.description || !obj.amount) { toast('Preencha os campos obrigatórios','error'); return; }
   if (id) {
     const idx = DB.transactions.findIndex(t=>t.id===id);
@@ -1873,13 +2013,14 @@ function saveTx() {
   closeModal('txModalOverlay');
   renderTransactions();
   renderDashboard();
+  renderAllocation();
   toast(id?'Transação atualizada':'Transação adicionada','success');
 }
 
 function deleteTx(id) {
   if (!confirm('Excluir esta transação?')) return;
   DB.transactions = DB.transactions.filter(t=>t.id!==id);
-  saveDB(); renderTransactions(); renderDashboard();
+  saveDB(); renderTransactions(); renderDashboard(); renderAllocation();
   toast('Transação excluída','info');
 }
 
@@ -1901,14 +2042,17 @@ function renderTransactions() {
     return;
   }
 
-  let html = '<table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Moeda</th><th class="text-right">Valor</th><th>Notas</th><th></th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Fonte</th><th>Moeda</th><th class="text-right">Valor</th><th>Notas</th><th></th></tr></thead><tbody>';
   txs.forEach(t => {
     const isInc = t.type==='income';
     const isSub = !!t.subscriptionId;
+    const allocName = t.fundSource ? getAllocName(t.fundSource) : '';
+    const fundBadge = allocName ? `<span class="badge badge-cyan" style="font-size:10px;">${allocName}</span>` : '<span class="text-muted" style="font-size:11px;">—</span>';
     html += `<tr>
       <td class="mono text-muted">${fmtDate(t.date)}</td>
       <td>${t.description}${isSub?'<span class="badge badge-purple" style="margin-left:6px;font-size:10px;">auto</span>':''}</td>
       <td><span class="badge ${isInc?'badge-green':'badge-red'}">${t.category}</span></td>
+      <td>${isInc ? '' : fundBadge}</td>
       <td class="mono">${t.currency}</td>
       <td class="mono text-right ${isInc?'text-green':'text-red'}">${isInc?'+':'−'}${fmtMoney(t.amount,t.currency)}</td>
       <td class="text-muted truncate">${t.notes||'—'}</td>
@@ -3071,6 +3215,235 @@ function renderBudget() {
 }
 
 // ============================
+// ALLOCATION
+// ============================
+function getAllocName(id) {
+  const a = (DB.allocations||[]).find(x=>x.id===id);
+  return a ? (a.icon?a.icon+' ':'')+a.name : '';
+}
+
+function getMonthlySubsCost() {
+  if (!DB.subscriptions) return 0;
+  return DB.subscriptions.filter(s=>s.active).reduce((s,x) => {
+    return s + (x.billingCycle === 'yearly' ? x.amount / 12 : x.amount);
+  }, 0);
+}
+
+function updateSalaryFromInput() {
+  DB.settings.salary = parseFloat(document.getElementById('allocSalary').value) || 0;
+  saveDB();
+  renderAllocation();
+}
+
+function openAllocModal(id) {
+  const isEdit = !!id;
+  document.getElementById('allocModalTitle').textContent = isEdit ? 'Editar Categoria' : 'Nova Categoria de Alocação';
+  document.getElementById('allocEditId').value = id || '';
+  if (isEdit) {
+    const a = (DB.allocations||[]).find(x=>x.id===id);
+    if (!a) return;
+    document.getElementById('allocName').value = a.name;
+    document.getElementById('allocPct').value = a.pct;
+    document.getElementById('allocColor').value = a.color || '#00d4aa';
+    document.getElementById('allocIcon').value = a.icon || '';
+  } else {
+    document.getElementById('allocName').value = '';
+    document.getElementById('allocPct').value = '';
+    document.getElementById('allocColor').value = '#00d4aa';
+    document.getElementById('allocIcon').value = '';
+  }
+  openModal('allocModalOverlay');
+}
+
+function saveAlloc() {
+  const id = document.getElementById('allocEditId').value;
+  const obj = {
+    id: id || uid(),
+    name: document.getElementById('allocName').value.trim(),
+    pct: parseFloat(document.getElementById('allocPct').value) || 0,
+    color: document.getElementById('allocColor').value,
+    icon: document.getElementById('allocIcon').value.trim()
+  };
+  if (!obj.name) { toast('Preencha o nome da categoria','error'); return; }
+  if (obj.pct <= 0 || obj.pct > 100) { toast('Porcentagem deve ser entre 0 e 100','error'); return; }
+  if (!DB.allocations) DB.allocations = [];
+  // Check total won't exceed 100%
+  const currentTotal = DB.allocations.filter(a=>a.id!==obj.id).reduce((s,a)=>s+a.pct,0);
+  if (currentTotal + obj.pct > 100) {
+    toast(`Total ficaria em ${(currentTotal+obj.pct).toFixed(1)}% — máximo é 100%`,'error');
+    return;
+  }
+  if (id) {
+    const idx = DB.allocations.findIndex(a=>a.id===id);
+    if (idx>=0) DB.allocations[idx] = obj;
+  } else {
+    DB.allocations.push(obj);
+  }
+  saveDB(); closeModal('allocModalOverlay'); renderAllocation();
+  toast(id?'Categoria atualizada':'Categoria criada','success');
+}
+
+function deleteAlloc(id) {
+  if (!confirm('Excluir esta categoria de alocação?')) return;
+  DB.allocations = (DB.allocations||[]).filter(a=>a.id!==id);
+  saveDB(); renderAllocation();
+  toast('Categoria excluída','info');
+}
+
+function updateAllocPctInline(id, val) {
+  const a = (DB.allocations||[]).find(x=>x.id===id);
+  if (!a) return;
+  const newVal = parseFloat(val) || 0;
+  const otherTotal = DB.allocations.filter(x=>x.id!==id).reduce((s,x)=>s+x.pct,0);
+  if (otherTotal + newVal > 100) {
+    toast(`Máximo permitido aqui: ${(100-otherTotal).toFixed(1)}%`,'error');
+    renderAllocation();
+    return;
+  }
+  a.pct = newVal;
+  saveDB(); renderAllocation();
+}
+
+function renderAllocation() {
+  if (!DB.allocations) DB.allocations = [];
+  const bc = DB.settings.baseCurrency;
+  const salary = DB.settings.salary || 0;
+  const subsCost = getMonthlySubsCost();
+  const available = Math.max(0, salary - subsCost);
+  const totalPct = DB.allocations.reduce((s,a)=>s+a.pct,0);
+
+  // Update salary input
+  const salaryInput = document.getElementById('allocSalary');
+  if (salaryInput && salaryInput !== document.activeElement) {
+    salaryInput.value = salary || '';
+  }
+
+  document.getElementById('allocSubsTotal').textContent = fmtMoney(subsCost, bc);
+  document.getElementById('allocAvailable').textContent = fmtMoney(available, bc);
+  const pctEl = document.getElementById('allocTotalPct');
+  pctEl.textContent = totalPct.toFixed(1) + '%';
+  pctEl.style.color = totalPct === 100 ? 'var(--accent-green)' : totalPct > 100 ? 'var(--accent-red)' : 'var(--accent-orange)';
+
+  // Bars
+  if (DB.allocations.length === 0) {
+    document.getElementById('allocBars').innerHTML = '<div class="empty-state"><p>Nenhuma categoria definida</p><p style="font-size:12px;color:var(--text-muted);margin-top:4px;">Crie categorias como Travel, Investments, Hobby...</p></div>';
+  } else {
+    let barsHtml = '';
+    // Get current month expenses per allocation
+    const now = new Date();
+    const m = now.getMonth(), y = now.getFullYear();
+    const monthExpenses = DB.transactions.filter(t=>{
+      const d=new Date(t.date); return t.type==='expense'&&d.getMonth()===m&&d.getFullYear()===y;
+    });
+
+    DB.allocations.forEach(a => {
+      const allocValue = available * (a.pct / 100);
+      const spent = monthExpenses.filter(t=>t.fundSource===a.id).reduce((s,t)=>s+parseFloat(t.amount),0);
+      const remaining = allocValue - spent;
+      const spentPct = allocValue > 0 ? Math.min(120, spent / allocValue * 100) : 0;
+      const barColor = spentPct > 100 ? 'var(--accent-red)' : spentPct > 80 ? 'var(--accent-orange)' : a.color;
+      const statusText = spentPct > 100
+        ? `<span style="color:var(--accent-red);font-weight:600;">+${fmtMoney(Math.abs(remaining),bc)} acima</span>`
+        : `<span style="color:var(--text-muted);">Restam ${fmtMoney(remaining,bc)}</span>`;
+
+      barsHtml += `<div class="budget-row">
+        <div class="budget-label-row">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:12px;height:12px;border-radius:3px;background:${a.color};display:inline-block;"></span>
+            <span style="font-size:14px;">${a.icon||''}</span>
+            <span style="font-size:13px;font-weight:600;">${a.name}</span>
+            <input type="number" step="0.1" min="0" max="100" value="${a.pct}" onchange="updateAllocPctInline('${a.id}',this.value)"
+              style="width:60px;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border);border-radius:4px;color:var(--accent-cyan);font-family:'JetBrains Mono',monospace;font-size:12px;text-align:center;outline:none;"
+              title="Editar %">
+            <span style="font-size:12px;color:var(--text-muted);">%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="mono" style="font-size:13px;color:var(--text-primary);">${fmtMoney(allocValue,bc)}</span>
+          </div>
+        </div>
+        <div class="budget-bar-track">
+          <div class="budget-bar-fill" style="width:${Math.min(100,spentPct)}%;background:${barColor};"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span style="font-size:11px;color:var(--text-muted);">Gasto: ${fmtMoney(spent,bc)} (${spentPct.toFixed(0)}%)</span>
+          ${statusText}
+        </div>
+      </div>`;
+    });
+
+    // Unallocated
+    if (totalPct < 100) {
+      const unallocPct = 100 - totalPct;
+      const unallocValue = available * (unallocPct / 100);
+      barsHtml += `<div class="budget-row" style="opacity:0.5;">
+        <div class="budget-label-row">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:12px;height:12px;border-radius:3px;background:var(--text-muted);display:inline-block;border:1px dashed var(--border);"></span>
+            <span style="font-size:13px;font-weight:500;font-style:italic;">Não alocado</span>
+            <span class="mono" style="font-size:12px;color:var(--text-muted);">${unallocPct.toFixed(1)}%</span>
+          </div>
+          <span class="mono" style="font-size:13px;">${fmtMoney(unallocValue,bc)}</span>
+        </div>
+        <div class="budget-bar-track">
+          <div class="budget-bar-fill" style="width:${unallocPct}%;background:var(--text-muted);opacity:0.3;"></div>
+        </div>
+      </div>`;
+    }
+
+    document.getElementById('allocBars').innerHTML = barsHtml;
+  }
+
+  // Chart
+  if (DB.allocations.length > 0) {
+    const chartLabels = DB.allocations.map(a=>(a.icon?a.icon+' ':'')+a.name+' ('+a.pct+'%)');
+    const chartData = DB.allocations.map(a=>a.pct);
+    const chartColors = DB.allocations.map(a=>a.color);
+    if (totalPct < 100) {
+      chartLabels.push('Não alocado');
+      chartData.push(100-totalPct);
+      chartColors.push('#2a2b36');
+    }
+    getOrCreateChart('allocChart', {
+      type: 'doughnut',
+      data: { labels:chartLabels, datasets:[{data:chartData, backgroundColor:chartColors, borderWidth:0}] },
+      options: { responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{legend:{position:'bottom',labels:{color:'#8b8d9a',font:{family:'DM Sans',size:11},padding:10,usePointStyle:true,pointStyleWidth:8}}} }
+    });
+  } else {
+    const canvas = document.getElementById('allocChart');
+    if (charts['allocChart']) { charts['allocChart'].destroy(); delete charts['allocChart']; }
+  }
+
+  // Table
+  if (DB.allocations.length === 0) {
+    document.getElementById('allocTable').innerHTML = '<div class="empty-state"><p>Nenhuma categoria de alocação</p></div>';
+  } else {
+    const now = new Date();
+    const m = now.getMonth(), y2 = now.getFullYear();
+    const monthExpenses = DB.transactions.filter(t=>{
+      const d=new Date(t.date); return t.type==='expense'&&d.getMonth()===m&&d.getFullYear()===y2;
+    });
+
+    let html = '<table><thead><tr><th></th><th>Categoria</th><th>%</th><th>Valor Mensal</th><th>Gasto (mês)</th><th>Saldo</th><th></th></tr></thead><tbody>';
+    DB.allocations.forEach(a => {
+      const allocValue = available * (a.pct / 100);
+      const spent = monthExpenses.filter(t=>t.fundSource===a.id).reduce((s,t)=>s+parseFloat(t.amount),0);
+      const remaining = allocValue - spent;
+      html += `<tr>
+        <td><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${a.color};"></span></td>
+        <td style="font-weight:600;">${a.icon?a.icon+' ':''}${a.name}</td>
+        <td class="mono text-cyan">${a.pct}%</td>
+        <td class="mono">${fmtMoney(allocValue,bc)}</td>
+        <td class="mono text-red">${fmtMoney(spent,bc)}</td>
+        <td class="mono ${remaining>=0?'text-green':'text-red'}">${remaining>=0?'':'−'}${fmtMoney(Math.abs(remaining),bc)}</td>
+        <td><div class="row-actions">${editBtn("openAllocModal('"+a.id+"')")}${delBtn("deleteAlloc('"+a.id+"')")}</div></td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('allocTable').innerHTML = html;
+  }
+}
+
+// ============================
 function renderAll() {
   renderDashboard();
   renderTransactions();
@@ -3080,6 +3453,7 @@ function renderAll() {
   renderTravels();
   renderSubscriptions();
   renderBudget();
+  renderAllocation();
   updateSyncStatus();
 }
 
