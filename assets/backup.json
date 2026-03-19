@@ -1,36 +1,5 @@
 {
-  "transactions": [
-    {
-      "id": "mmwlyehrxhco7",
-      "type": "income",
-      "date": "2026-02-27",
-      "description": "Salary",
-      "amount": 1613.3,
-      "category": "salary",
-      "allocationId": "",
-      "isSalary": true
-    },
-    {
-      "id": "mmwmoewq34kyk",
-      "type": "expense",
-      "date": "2026-03-18",
-      "description": "Compras",
-      "amount": 635.02,
-      "category": "shopping",
-      "allocationId": "",
-      "isSalary": false
-    },
-    {
-      "id": "mmwmszr82bsmx",
-      "type": "expense",
-      "date": "2026-03-18",
-      "description": "Sem descrição",
-      "amount": 419,
-      "category": "shopping",
-      "allocationId": "",
-      "isSalary": false
-    }
-  ],
+  "transactions": [],
   "allocations": [
     {
       "id": "mmwlyqgoep429",
@@ -85,7 +54,7 @@
       "amount": 113.69,
       "billing": "monthly",
       "status": "active",
-      "lastPaymentDate": "2026-02-21"
+      "lastPaymentDate": "2026-03-21"
     },
     {
       "id": "mmwlw0tl9hvkh",
@@ -109,7 +78,7 @@
       "amount": 164,
       "billing": "monthly",
       "status": "active",
-      "lastPaymentDate": "2026-02-21"
+      "lastPaymentDate": "2026-03-21"
     },
     {
       "id": "mmwlxbaenhh0j",
@@ -129,7 +98,35 @@
     }
   ],
   "investments": [],
-  "goals": [],
+  "goals": [
+    {
+      "id": "mmxnd3n4nfovx",
+      "name": "Exterior/Future",
+      "targetAmount": 50000,
+      "currentAmount": 0,
+      "deadline": "",
+      "priority": "high",
+      "icon": "🎯"
+    },
+    {
+      "id": "mmxndazrlwinj",
+      "name": "Investment",
+      "targetAmount": 1000,
+      "currentAmount": 0,
+      "deadline": "",
+      "priority": "medium",
+      "icon": "🎯"
+    },
+    {
+      "id": "mmxndi81bj7hp",
+      "name": "Emergency",
+      "targetAmount": 3000,
+      "currentAmount": 0,
+      "deadline": "",
+      "priority": "low",
+      "icon": "🎯"
+    }
+  ],
   "settings": {
     "currency": "BRL"
   }
